@@ -13,9 +13,12 @@ module.exports = {
         type: Sequelize.STRING
       },
       status: {
+        allowNull: false,
+        defaultValue: 'draft',
         type: Sequelize.STRING
       },
       user_id: {
+        allowNull: false,
         type: Sequelize.INTEGER
       },
       created_at: {
