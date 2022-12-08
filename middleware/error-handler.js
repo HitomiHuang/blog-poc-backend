@@ -1,15 +1,16 @@
-// const httpStatusCodes = require('../util/httpStatusCodes')
+const { UserNotFoundException } = require('../util/exceptions')
+const httpStatusCodes = require('../util/httpStatusCodes')
 module.exports = {
   apiErrorHandler (err, req, res, next) {
-    if (err instanceof Error) {
-      res.status(500).json({
-        status: 'error',
-        message: `${err.name}: ${err.message}`
+    if (err instanceof UserNotFoundException) {
+      res.status(httpStatusCodes.NOT_FOUND).json({
+        status: `${err.name}`,
+        message: `${err.message}`
       })
     } else {
-      res.status(500).json({
-        status: 'error',
-        message: `${err}`
+      res.status(httpStatusCodes.SERVER_ERROR).json({
+        status: 'System Error',
+        message: `${err.message}`
       })
     }
     next(err)
