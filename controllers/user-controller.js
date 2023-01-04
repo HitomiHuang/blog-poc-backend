@@ -2,16 +2,20 @@ const helper = require('../util/auth-helpers')
 const { User, Followship } = require('../models')
 const { UserNotFoundException } = require('../util/exceptions')
 const awsHandler = require('../util/aws-helpers')
+const signature = require('cookie-signature')
+
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
 
 const userController = {
   signIn: (req, res, next) => {
     try {
-      const cookie = req.headers.cookie.split('=')[1]
-      return res.status(200).json({
-        status: 'success',
-        data: {
-          'connect.sid': cookie
-        }
+      return res.status(200).cookie('connect.sid', `s: ${signature.sign(req.sessionID, process.env.COOKIESIGN)}`).json({
+        status: 'success'
+        //   data: {
+        //     'connect.sid': `s: ${signature.sign(req.sessionID, process.env.COOKIESIGN)}`
+        //   }
       })
     } catch (err) {
       next(err)
@@ -95,8 +99,23 @@ const userController = {
       next(err)
     }
   },
-  getFollowings: (req, res, next) => {
-
+  getFollowings: async(req, res, next) => {
+    try {
+      const user = await User.findByPk(req.params.id, {
+        attributes: { exclude: ['password'] },
+        include: [
+          { model: User, as: 'Followings', attributes: ['id', 'name', 'avatar', 'bio'] }
+        ]
+      })
+      if (!user) throw new UserNotFoundException('user did not exist')
+      const Followings = await user.toJSON().Followings.map(followings => ({
+        ...followings,
+        
+      }))
+      
+    } catch (err) {
+      next(err)
+    }
   }
 }
 module.exports = userController
