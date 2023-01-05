@@ -2,7 +2,6 @@ const helper = require('../util/auth-helpers')
 const { User, Followship, Story, Response } = require('../models')
 const { UserNotFoundException } = require('../util/exceptions')
 const awsHandler = require('../util/aws-helpers')
-const signature = require('cookie-signature')
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -11,27 +10,21 @@ if (process.env.NODE_ENV !== 'production') {
 const userController = {
   signIn: (req, res, next) => {
     try {
-      const oneDay = 1000 * 60 * 60 * 24
-      return res.status(200).cookie('connect.sid', `s: ${signature.sign(req.sessionID, process.env.COOKIESIGN)}`,
-        {
-          path: '/',
-          httpOnly: true,
-          maxAge: oneDay,
-          domain: 'http://localhost:8080/',
-          sameSite: 'none'
-        }).json({
-        status: 'success'
-        //   data: {
-        //     'connect.sid': `s: ${signature.sign(req.sessionID, process.env.COOKIESIGN)}`
-        //   }
-      })
+      return res.status(200)
+        .json({
+          status: 'success',
+          data: {
+            user: helper.getUser(req).userName
+          }
+        })
     } catch (err) {
       next(err)
     }
   },
   getUser: async (req, res, next) => {
     try {
-      const user = await User.findByPk(req.params.id, {
+      const user = await User.findOne({
+        where: { userName: req.params.userName },
         attributes: { exclude: ['password'] },
         include: [
           { model: User, as: 'Followers' },
@@ -60,7 +53,7 @@ const userController = {
       const { name, bio, password, email } = req.body
       const user = await User.findByPk(helper.getUser(req).id)
       if (!user) throw new UserNotFoundException('user did not exist')
-      const avatar = req.file ? await awsHandler.addAvatar(user.id, req.file) : null
+      const avatar = req.file ? await awsHandler.addAvatar(user.userName, req.file) : null
 
       await user.update({
         name: name?.trim() || user.name,
@@ -81,7 +74,8 @@ const userController = {
   },
   getFollowers: async (req, res, next) => {
     try {
-      const user = await User.findByPk(req.params.id, {
+      const user = await User.findOne({
+        where: { userName: req.params.userName },
         attributes: { exclude: ['password'] },
         include: [
           { model: User, as: 'Followers', attributes: ['id', 'name', 'avatar', 'bio'] }
@@ -110,7 +104,8 @@ const userController = {
   },
   getFollowings: async (req, res, next) => {
     try {
-      const user = await User.findByPk(req.params.id, {
+      const user = await User.findOne({
+        where: { userName: req.params.userName },
         attributes: { exclude: ['password'] },
         include: [
           { model: User, as: 'Followings', attributes: ['id', 'name', 'avatar', 'bio'] }

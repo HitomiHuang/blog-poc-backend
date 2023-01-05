@@ -9,8 +9,9 @@ const corsOptions = {
   origin: [
     'http://localhost:8080'
   ],
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['POST', 'PUT', 'GET', 'OPTIONS', 'HEAD', 'PATCH', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }
 
 const app = express()
@@ -20,10 +21,18 @@ const passport = require('./config/passport')
 const routes = require('./routes')
 
 const port = process.env.PORT || 3000
+const oneDay = 1000 * 60 * 60 * 24
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
-app.use(session({ secret: process.env.SECRET, resave: false, saveUninitialized: false }))
+app.use(session({
+  secret: process.env.SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: oneDay
+  }
+}))
 app.use(passport.initialize())
 app.use(passport.session())
 app.use('/api', routes)

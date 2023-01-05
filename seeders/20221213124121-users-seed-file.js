@@ -7,7 +7,7 @@ module.exports = {
     // const users = queryInterface.sequelize.query('SELECT ', { type: queryInterface.sequelize.QueryTypes.SELECT })
     await queryInterface.bulkInsert('Users',
       Array.from({ length: 3 }, (_, i) => ({
-        user_name: `user${i + 1}`,
+        user_name: `@user${i + 1}`,
         name: faker.name.fullName(),
         password: '12345678',
         email: faker.internet.exampleEmail(),
