@@ -37,6 +37,7 @@ const userController = {
       return res.status(200).json({
         status: 'success',
         data: {
+          id: user.id,
           avatar: user.avatar,
           name: user.name,
           email: user.email,
