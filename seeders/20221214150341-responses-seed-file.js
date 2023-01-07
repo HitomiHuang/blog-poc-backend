@@ -1,5 +1,6 @@
 'use strict'
 const { faker } = require('@faker-js/faker')
+const crypto = require('crypto')
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -10,6 +11,7 @@ module.exports = {
     const responses = []
     stories.forEach(story => {
       responses.push(...Array.from({ length: 3 }, () => ({
+        id: crypto.randomBytes(6).toString('hex'),
         content: faker.lorem.text().substring(0, 50),
         user_id: users[Math.floor(Math.random() * users.length)].id,
         story_id: story.id,

@@ -5,12 +5,13 @@ module.exports = {
     await queryInterface.createTable('Responses', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       content: {
-        type: Sequelize.TEXT
+        primaryKey: true,
+        allowNull: false,
+        type: Sequelize.STRING
       },
       user_id: {
         allowNull: false,
@@ -18,7 +19,7 @@ module.exports = {
       },
       story_id: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       created_at: {
         allowNull: false,

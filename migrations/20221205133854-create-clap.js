@@ -15,7 +15,7 @@ module.exports = {
       },
       story_id: {
         allowNull: false,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       created_at: {
         allowNull: false,

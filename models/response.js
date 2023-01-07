@@ -10,13 +10,15 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate (models) {
-      // define association here
+      Response.belongsTo(models.User, { foreignKey: 'userId' })
+      Response.belongsTo(models.Story, { foreignKey: ['storyId', 'title'] })
     }
   }
   Response.init({
-    content: DataTypes.TEXT,
+    id: DataTypes.STRING,
+    content: DataTypes.STRING,
     userId: DataTypes.STRING,
-    storyId: DataTypes.INTEGER
+    storyId: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Response',

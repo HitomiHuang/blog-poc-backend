@@ -5,12 +5,12 @@ module.exports = {
     await queryInterface.createTable('Stories', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.STRING
       },
       title: {
         allowNull: false,
+        primaryKey: true,
         type: Sequelize.STRING
       },
       content: {
