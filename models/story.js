@@ -21,8 +21,14 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Story.init({
-    id: DataTypes.STRING,
-    title: DataTypes.STRING,
+    id: {
+      type: DataTypes.STRING,
+      primaryKey: true
+    },
+    title: {
+      type: DataTypes.STRING,
+      primaryKey: true
+    },
     content: DataTypes.TEXT,
     status: DataTypes.STRING,
     userId: DataTypes.INTEGER

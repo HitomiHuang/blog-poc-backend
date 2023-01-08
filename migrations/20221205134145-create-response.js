@@ -4,8 +4,8 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('Responses', {
       id: {
-        allowNull: false,
         primaryKey: true,
+        allowNull: false,
         type: Sequelize.STRING
       },
       content: {

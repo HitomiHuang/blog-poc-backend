@@ -15,8 +15,14 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Response.init({
-    id: DataTypes.STRING,
-    content: DataTypes.STRING,
+    id: {
+      type: DataTypes.STRING,
+      primaryKey: true
+    },
+    content: {
+      type: DataTypes.STRING,
+      primaryKey: true
+    },
     userId: DataTypes.STRING,
     storyId: DataTypes.STRING
   }, {
