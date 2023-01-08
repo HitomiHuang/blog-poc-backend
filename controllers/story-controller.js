@@ -1,5 +1,6 @@
 const helper = require('../util/auth-helpers')
 const { Story } = require('../models')
+const crypto = require('crypto')
 const awsHandler = require('../util/aws-helpers')
 
 const storyController = {
@@ -24,6 +25,7 @@ const storyController = {
         title = content.substring(0, 100)
       }
       await Story.create({
+        id: crypto.randomBytes(6).toString('hex'),
         title,
         content,
         status,
