@@ -1,6 +1,6 @@
 'use strict'
 const { faker } = require('@faker-js/faker')
-const crypto = require('crypto')
+const generator = require('../util/id-generator')
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
@@ -9,18 +9,20 @@ module.exports = {
     const stories = []
     const status = ['draft', 'published']
 
-    users.forEach(user => {
-      stories.push(...Array.from({ length: 5 }, () => ({
-        id: crypto.randomBytes(6).toString('hex'),
-        title: faker.lorem.text().substring(0, 20),
-        content: faker.lorem.paragraphs(3),
-        status: status[Math.floor(Math.random() * 2)],
-        user_id: user.id,
-        created_at: new Date(),
-        updated_at: new Date()
-      }))
-      )
-    })
+    for (let j = 0; j < users.length; j++) {
+      for (let i = 0; i < 5; i++) {
+        const text = await faker.lorem.text().substring(0, 100)
+        await stories.push({
+          id: await generator(text),
+          title: text,
+          content: await faker.lorem.paragraphs(3),
+          status: status[Math.floor(Math.random() * 2)],
+          user_id: users[j].id,
+          created_at: new Date(),
+          updated_at: new Date()
+        })
+      }
+    }
 
     await queryInterface.bulkInsert('Stories', stories, {})
   },

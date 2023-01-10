@@ -14,7 +14,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Clap.init({
     userId: DataTypes.INTEGER,
-    storyId: DataTypes.INTEGER
+    storyId: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Clap',

@@ -1,18 +1,14 @@
-// const { Story } = require('../models')
-import cryptoRandomString from 'crypto-random-string'
+const crypto = require('crypto')
 
-const generator = async length => {
-  // const box = 'abcdefghijklmnopqrstuvwxyz1234567890'
-  // let randomString = ''
-  // const storyIdsOfUser = await Story.findAll({
-  //   where: { userId: user },
-  //   attributes: ['id']
-  // })
+const generator = async content => {
+  const contentArray = content.substring(0, 100).split('\n')
+  const regex = /[^\u4E00-\u9FA5A-Za-z0-9\s]/g
+  const str1 = contentArray[0].replace(regex, '')
 
-  // for (let i = 0; i < length; i++) {
-  //   randomString += box[Math.floor(Math.random() * 36)]
-  // }
+  const str2 = str1.toLowerCase().trim()
+  const stringCrypto = str2.replace(/[\s]/g, '-')
+  const idCrypto = crypto.randomBytes(6).toString('hex')
 
-  return cryptoRandomString({ length })
+  return `${stringCrypto}-${idCrypto}`
 }
 module.exports = generator

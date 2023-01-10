@@ -23,8 +23,9 @@ const userController = {
   },
   getUser: async (req, res, next) => {
     try {
+      const { userName } = req.body
       const user = await User.findOne({
-        where: { userName: req.params.userName },
+        where: { userName },
         attributes: { exclude: ['password'] },
         include: [
           { model: User, as: 'Followers' },
@@ -75,8 +76,9 @@ const userController = {
   },
   getFollowers: async (req, res, next) => {
     try {
+      const { userName } = req.body
       const user = await User.findOne({
-        where: { userName: req.params.userName },
+        where: { userName },
         attributes: { exclude: ['password'] },
         include: [
           { model: User, as: 'Followers', attributes: ['id', 'name', 'avatar', 'bio'] }
@@ -105,8 +107,9 @@ const userController = {
   },
   getFollowings: async (req, res, next) => {
     try {
+      const { userName } = req.body
       const user = await User.findOne({
-        where: { userName: req.params.userName },
+        where: { userName },
         attributes: { exclude: ['password'] },
         include: [
           { model: User, as: 'Followings', attributes: ['id', 'name', 'avatar', 'bio'] }

@@ -1,17 +1,42 @@
 const helper = require('../util/auth-helpers')
-const { Story } = require('../models')
+const { Story, Clap } = require('../models')
+
 const clapController = {
   addClap: async (req, res, next) => {
-    const { storyId, title } = req.body
-    const user = helper.getUser(req).id
-    const story = await Story.findByPk([storyId, title])
+    try {
+      const { storyId } = req.body
+      console.log(storyId)
+      const story = await Story.findByPk(storyId)
+      if (!story) throw new Error('Story not exist')
 
-    if (!story) throw new Error('Story not exist')
+      await Clap.create({ userId: helper.getUser(req).id, storyId })
 
-    
+      return res.status(200).json({
+        status: 'success'
+      })
+    } catch (err) {
+      next(err)
+    }
   },
-  removeClap: (req, res, next) => {
+  removeClap: async (req, res, next) => {
+    try {
+      const clap = await Clap.findOne({
+        where: {
+          userId: helper.getUser(req).id,
+          storyId: req.body.storyId
+        }
+      })
 
+      if (!clap) throw new Error("you haven't clapped this story")
+
+      await clap.destroy()
+
+      return res.status(200).json({
+        status: 'success'
+      })
+    } catch (err) {
+      next(err)
+    }
   }
 
 }

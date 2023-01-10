@@ -13,6 +13,7 @@ passport.use(new LocalStrategy(
       const user = await User.findOne({ where: { email } })
       if (!user) throw new UserNotFoundException('user not found')
       if (user.password !== password) throw new Error('email or password wrong')
+
       return done(null, user)
     } catch (err) {
       return done(err, false)

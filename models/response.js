@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate (models) {
       Response.belongsTo(models.User, { foreignKey: 'userId' })
-      Response.belongsTo(models.Story, { foreignKey: ['storyId', 'title'] })
+      Response.belongsTo(models.Story, { foreignKey: 'storyId' })
     }
   }
   Response.init({
@@ -19,10 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       primaryKey: true
     },
-    content: {
-      type: DataTypes.STRING,
-      primaryKey: true
-    },
+    content: DataTypes.STRING,
     userId: DataTypes.STRING,
     storyId: DataTypes.STRING
   }, {
