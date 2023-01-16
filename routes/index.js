@@ -9,6 +9,8 @@ const clapController = require('../controllers/clap-controller')
 const upload = require('../middleware/multer')
 const followshipController = require('../controllers/followship-controller')
 
+router.put('/p/storyCode/edit', storyController.putStory)
+router.post('/userName/storyId', storyController.getStory)
 router.delete('/following', authenticated, followshipController.removeFollowing)
 router.post('/following', authenticated, followshipController.addFollowing)
 router.post('/clap', authenticated, clapController.addClap)
