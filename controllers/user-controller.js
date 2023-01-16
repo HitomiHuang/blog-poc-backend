@@ -1,7 +1,8 @@
 const helper = require('../util/auth-helpers')
-const { User, Followship, Story, Response } = require('../models')
+const { User, Followship, Story } = require('../models')
 const { UserNotFoundException } = require('../util/exceptions')
 const awsHandler = require('../util/aws-helpers')
+const { Op } = require('sequelize')
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -144,7 +145,7 @@ const userController = {
           {
             model: Story,
             attributes: { exclude: ['userId', 'createdAt'] },
-            where: { status: 'draft' }
+            where: { status: 'draft', responseTo: null }
           }
         ]
       })
@@ -175,7 +176,7 @@ const userController = {
           {
             model: Story,
             attributes: { exclude: ['userId', 'createdAt'] },
-            where: { status: 'published' }
+            where: { status: 'published', responseTo: null }
           }
         ]
       })
@@ -204,7 +205,8 @@ const userController = {
         attributes: { exclude: ['password'] },
         include: [
           {
-            model: Response,
+            model: Story,
+            where: { responseTo: { [Op.not]: null } },
             attributes: { exclude: ['id', 'userId', 'createdAt'] }
           }
         ]
@@ -212,7 +214,7 @@ const userController = {
 
       if (!user) throw new UserNotFoundException('user did not exist')
 
-      const responses = user.toJSON().Responses.map(response => ({
+      const responses = user.toJSON().Stories.map(response => ({
         ...response,
         content: response.content.substring(0, 100)
       }))

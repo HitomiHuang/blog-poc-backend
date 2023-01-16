@@ -12,6 +12,10 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
+      code: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
       content: {
         type: Sequelize.TEXT
       },
@@ -23,6 +27,9 @@ module.exports = {
       user_id: {
         allowNull: false,
         type: Sequelize.INTEGER
+      },
+      response_to: {
+        type: Sequelize.STRING
       },
       created_at: {
         allowNull: false,

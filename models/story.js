@@ -11,12 +11,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate (models) {
       Story.hasMany(models.Clap, { foreignKey: 'storyId' })
-      Story.hasMany(models.Response, { foreignKey: 'storyId' })
+      Story.hasMany(Story, { foreignKey: 'id' })
       Story.belongsTo(models.User, { foreignKey: 'userId' })
       Story.belongsToMany(models.User, {
         through: models.Clap,
         foreignKey: 'storyId',
-        as: 'ClappedStory'
+        as: 'ClappedUser'
       })
     }
   }
@@ -26,9 +26,11 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true
     },
     title: DataTypes.STRING,
+    code: DataTypes.STRING,
     content: DataTypes.TEXT,
     status: DataTypes.STRING,
-    userId: DataTypes.INTEGER
+    userId: DataTypes.INTEGER,
+    responseTo: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Story',

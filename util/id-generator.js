@@ -9,6 +9,6 @@ const generator = async content => {
   const stringCrypto = str2.replace(/[\s]/g, '-')
   const idCrypto = crypto.randomBytes(6).toString('hex')
 
-  return `${stringCrypto}-${idCrypto}`
+  return [`${stringCrypto}-${idCrypto}`, stringCrypto, idCrypto]
 }
 module.exports = generator

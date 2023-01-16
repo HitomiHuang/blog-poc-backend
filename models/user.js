@@ -11,7 +11,6 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate (models) {
       User.hasMany(models.Story, { foreignKey: 'userId' })
-      User.hasMany(models.Response, { foreignKey: 'userId' })
       User.belongsToMany(models.Story, {
         through: models.Clap,
         foreignKey: 'userId',
