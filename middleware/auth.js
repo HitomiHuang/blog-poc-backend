@@ -15,7 +15,6 @@ const localAuthenticate = (req, res, next) => {
       })
     }
     req.login(user.toJSON(), err => {
-      console.log(req)
       if (err) {
         next(err)
       }
@@ -26,7 +25,6 @@ const localAuthenticate = (req, res, next) => {
 }
 
 const authenticated = (req, res, next) => {
-  console.log('hello', req)
   if (ensureAuthenticated(req)) {
     return next()
   }

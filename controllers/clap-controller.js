@@ -5,7 +5,6 @@ const clapController = {
   addClap: async (req, res, next) => {
     try {
       const { storyId } = req.body
-      console.log(storyId)
       const story = await Story.findByPk(storyId)
       if (!story) throw new Error('Story not exist')
 

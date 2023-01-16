@@ -44,7 +44,6 @@ const awsHandler = {
         ContentType: file.mimetype
       }
       const data = await new aws.S3.ManagedUpload({ service: s3, params }).promise()
-      // console.log(data.Location)
       return data.Location
     } catch (err) {
       throw new Error('upload failed')
