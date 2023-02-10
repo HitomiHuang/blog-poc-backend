@@ -1,12 +1,13 @@
 const helper = require('../util/auth-helpers')
 const { Story, Clap } = require('../models')
+const { NotFoundException } = require('../util/exceptions')
 
 const clapController = {
   addClap: async (req, res, next) => {
     try {
       const { storyId } = req.body
       const story = await Story.findByPk(storyId)
-      if (!story) throw new Error('Story not exist')
+      if (!story) throw new NotFoundException('Story not exist')
 
       await Clap.create({ userId: helper.getUser(req).id, storyId })
 
@@ -26,7 +27,7 @@ const clapController = {
         }
       })
 
-      if (!clap) throw new Error("you haven't clapped this story")
+      if (!clap) throw new NotFoundException("you haven't clapped this story")
 
       await clap.destroy()
 

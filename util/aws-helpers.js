@@ -1,4 +1,5 @@
 const aws = require('aws-sdk')
+const { UploadFailedException } = require('./exceptions')
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -32,7 +33,7 @@ const awsHandler = {
       const data = await new aws.S3.ManagedUpload({ service: s3, params }).promise()
       return data.Location
     } catch (err) {
-      throw new Error('upload failed')
+      throw new UploadFailedException('upload failed')
     }
   },
   addAvatar: async (user, file) => {
@@ -46,7 +47,7 @@ const awsHandler = {
       const data = await new aws.S3.ManagedUpload({ service: s3, params }).promise()
       return data.Location
     } catch (err) {
-      throw new Error('upload failed')
+      throw new UploadFailedException('upload failed')
     }
   }
 }

@@ -1,6 +1,6 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
-const { UserNotFoundException } = require('../util/exceptions')
+const { NotFoundException, EmailOrPasswordWrongException } = require('../util/exceptions')
 const { User } = require('../models')
 
 passport.use(new LocalStrategy(
@@ -11,8 +11,8 @@ passport.use(new LocalStrategy(
   async (email, password, done) => {
     try {
       const user = await User.findOne({ where: { email } })
-      if (!user) throw new UserNotFoundException('user not found')
-      if (user.password !== password) throw new Error('email or password wrong')
+      if (!user) throw new NotFoundException('user not found')
+      if (user.password !== password) throw new EmailOrPasswordWrongException('email or password wrong')
 
       return done(null, user)
     } catch (err) {

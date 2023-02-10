@@ -1,6 +1,6 @@
 const helper = require('../util/auth-helpers')
-const { User, Followship, Story } = require('../models')
-const { UserNotFoundException } = require('../util/exceptions')
+const { User, Followship, Story, Sequelize } = require('../models')
+const { NotFoundException } = require('../util/exceptions')
 const awsHandler = require('../util/aws-helpers')
 const { Op } = require('sequelize')
 
@@ -34,7 +34,7 @@ const userController = {
         ]
       })
 
-      if (!user) throw new UserNotFoundException('user did not exist')
+      if (!user) throw new NotFoundException('user did not exist')
 
       return res.status(200).json({
         status: 'success',
@@ -55,7 +55,7 @@ const userController = {
     try {
       const { name, bio, password, email } = req.body
       const user = await User.findByPk(helper.getUser(req).id)
-      if (!user) throw new UserNotFoundException('user did not exist')
+      if (!user) throw new NotFoundException('user did not exist')
       const avatar = req.file ? await awsHandler.addAvatar(user.userName, req.file) : null
 
       await user.update({
@@ -86,7 +86,7 @@ const userController = {
         ]
       })
 
-      if (!user) throw new UserNotFoundException('user did not exist')
+      if (!user) throw new NotFoundException('user did not exist')
 
       const Followers = await user.toJSON().Followers.map(followers => ({
         ...followers,
@@ -117,7 +117,7 @@ const userController = {
         ]
       })
 
-      if (!user) throw new UserNotFoundException('user did not exist')
+      if (!user) throw new NotFoundException('user did not exist')
 
       const Followings = await user.toJSON().Followings.map(followings => ({
         ...followings,
@@ -150,7 +150,7 @@ const userController = {
         ]
       })
 
-      if (!user) throw new UserNotFoundException('user did not exist')
+      if (!user) throw new NotFoundException('user did not exist')
 
       const draftStories = user.toJSON().Stories.map(story => ({
         ...story,
@@ -181,7 +181,7 @@ const userController = {
         ]
       })
 
-      if (!user) throw new UserNotFoundException('user did not exist')
+      if (!user) throw new NotFoundException('user did not exist')
 
       const publishedStories = user.toJSON().Stories.map(story => ({
         ...story,
@@ -212,7 +212,7 @@ const userController = {
         ]
       })
 
-      if (!user) throw new UserNotFoundException('user did not exist')
+      if (!user) throw new NotFoundException('user did not exist')
 
       const responses = user.toJSON().Stories.map(response => ({
         ...response,
@@ -225,6 +225,35 @@ const userController = {
         data: {
           responses
         }
+      })
+    } catch (err) {
+      next(err)
+    }
+  },
+  getResponse: async (req, res, next) => {
+    try {
+      const { responseId } = req.body
+      const data = await Story.findByPk(responseId, { attributes: { exclude: ['status', 'userId', 'createdAt'] } })
+      if (!data) throw new NotFoundException('response did not exist')
+
+      const responseTo = await Story.findByPk(data.responseTo, {
+        attributes: [
+          'id',
+          'title',
+          [Sequelize.fn('COUNT', Sequelize.col('Story.id')), 'responseCount'],
+          [Sequelize.col('User.name'), 'name']
+        ],
+        include: [
+          { model: User, attributes: [] },
+          { model: Story, attributes: [] }
+        ]
+      })
+
+      data.responseTo = responseTo
+
+      return res.status(200).json({
+        status: 'success',
+        data
       })
     } catch (err) {
       next(err)
