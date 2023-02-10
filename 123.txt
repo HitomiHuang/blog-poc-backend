@@ -251,7 +251,7 @@
     'content-type': 'application/json',
     'user-agent': 'PostmanRuntime/7.30.1',
     accept: '*/*',
-    'postman-token': '85db6e05-baf3-4b46-a6c0-fd6246087105',
+    'postman-token': 'a9296233-2adb-4515-a276-4bf075e6186a',
     host: 'localhost:3000',
     'accept-encoding': 'gzip, deflate, br',
     connection: 'keep-alive',
@@ -266,7 +266,7 @@
     'Accept',
     '*/*',
     'Postman-Token',
-    '85db6e05-baf3-4b46-a6c0-fd6246087105',
+    'a9296233-2adb-4515-a276-4bf075e6186a',
     'Host',
     'localhost:3000',
     'Accept-Encoding',
@@ -619,18 +619,21 @@
     },
     _eventsCount: 2,
     _maxListeners: undefined,
-    sessions: [Object: null prototype] {},
+    sessions: [Object: null prototype] {
+      '9eCrAT_ko2bcdQBJ-N-g0TibQG2qickh': '{"cookie":{"originalMaxAge":86400000,"expires":"2023-02-11T18:24:44.032Z","httpOnly":true,"path":"/"},"passport":{"user":31}}'
+    },
     generate: [Function (anonymous)],
     [Symbol(kCapture)]: false
   },
-  sessionID: 'NnQqqeDP_rg-bN9q40FOrxng-UXDHHol',
+  sessionID: '9eCrAT_ko2bcdQBJ-N-g0TibQG2qickh',
   session: Session {
     cookie: {
       path: '/',
-      _expires: 2023-02-11T18:23:22.249Z,
+      _expires: 2023-02-11T18:24:44.032Z,
       originalMaxAge: 86400000,
       httpOnly: true
-    }
+    },
+    passport: { user: 31 }
   },
   logIn: [Function (anonymous)],
   login: [Function (anonymous)],
@@ -697,6 +700,7 @@
     },
     isNewRecord: false
   },
+  authInfo: {},
   [Symbol(kCapture)]: false,
   [Symbol(RequestTimeout)]: undefined
 }

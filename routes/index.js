@@ -34,8 +34,8 @@ router.get('/me/stories/responses', authenticated, userController.getResponses)
 router.put('/userName', authenticated, upload.single('avatar'), userController.putUser)
 router.post('/userName', userController.getUser)
 router.post('/upload-file', upload.single('profile_img'), storyController.uploadImg)
-// router.post('/signIn', localAuthenticate, userController.signIn)
-router.post('/signIn', passport.authenticate('local'), userController.signIn)
+router.post('/signIn', localAuthenticate, userController.signIn)
+// router.post('/signIn', passport.authenticate('local'), userController.signIn)
 
 router.use('/', apiErrorHandler)
 module.exports = router

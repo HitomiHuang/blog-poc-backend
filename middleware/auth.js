@@ -16,11 +16,12 @@ const localAuthenticate = (req, res, next) => {
       //   message: 'email or password is wrong'
       // })
     }
-    req.login(user, err => {
-      if (err) {
-        next(err)
-      }
-    })
+    req.user = user
+    // req.login(user, err => {
+    //   if (err) {
+    //     next(err)
+    //   }
+    // })
 
     return next()
   })(req, res, next)
