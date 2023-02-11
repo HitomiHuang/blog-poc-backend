@@ -1,6 +1,6 @@
 const helper = require('../util/auth-helpers')
 const { User, Followship, Story, Sequelize } = require('../models')
-const { NotFoundException } = require('../util/exceptions')
+const { NotFoundException, InputErrorException } = require('../util/exceptions')
 const awsHandler = require('../util/aws-helpers')
 const { Op } = require('sequelize')
 
@@ -11,7 +11,6 @@ if (process.env.NODE_ENV !== 'production') {
 const userController = {
   signIn: (req, res, next) => {
     try {
-      console.log(req)
       return res.status(200)
         .json({
           status: 'success',
@@ -25,7 +24,9 @@ const userController = {
   },
   getUser: async (req, res, next) => {
     try {
-      const { userName } = req.body
+      const userName = req.body.userName?.trim()
+      if (!userName) throw new InputErrorException('the field [userName] is required')
+
       const user = await User.findOne({
         where: { userName },
         attributes: { exclude: ['password'] },
@@ -78,7 +79,8 @@ const userController = {
   },
   getFollowers: async (req, res, next) => {
     try {
-      const { userName } = req.body
+      const userName = req.body.userName?.trim()
+      if (!userName) throw new InputErrorException('the field [userName] is required')
       const user = await User.findOne({
         where: { userName },
         attributes: { exclude: ['password'] },
@@ -109,7 +111,8 @@ const userController = {
   },
   getFollowings: async (req, res, next) => {
     try {
-      const { userName } = req.body
+      const userName = req.body.userName?.trim()
+      if (!userName) throw new InputErrorException('the field [userName] is required')
       const user = await User.findOne({
         where: { userName },
         attributes: { exclude: ['password'] },
@@ -233,7 +236,8 @@ const userController = {
   },
   getResponse: async (req, res, next) => {
     try {
-      const { responseId } = req.body
+      const responseId = req.body.responseId?.trim()
+      if (!responseId) throw new InputErrorException('the field [responseId] is required')
       const data = await Story.findByPk(responseId, { attributes: { exclude: ['status', 'userId', 'createdAt'] } })
       if (!data) throw new NotFoundException('response did not exist')
 

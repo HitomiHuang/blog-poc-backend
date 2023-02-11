@@ -1,10 +1,11 @@
 const helper = require('../util/auth-helpers')
 const { User, Followship } = require('../models')
-const { NotFoundException } = require('../util/exceptions')
+const { NotFoundException, InputErrorException } = require('../util/exceptions')
 const followshipController = {
   addFollowing: async (req, res, next) => {
     try {
-      const { followingId } = req.body
+      const followingId = req.body.followingId?.trim()
+      if (!followingId) throw new InputErrorException('the field [followingId] is required')
       const followingUser = await User.findByPk(followingId)
       if (!followingUser) throw new NotFoundException('followingUser did not exist')
       const followerId = helper.getUser(req).id
@@ -20,7 +21,8 @@ const followshipController = {
   },
   removeFollowing: async (req, res, next) => {
     try {
-      const { followingId } = req.body
+      const followingId = req.body.followingId?.trim()
+      if (!followingId) throw new InputErrorException('the field [followingId] is required')
       const followship = await Followship.findOne({
         where: {
           followerId: helper.getUser(req).id,

@@ -11,20 +11,23 @@ const localAuthenticate = (req, res, next) => {
 
     if (!user || err) {
       throw new EmailOrPasswordWrongException('email or password is wrong')
-      // return res.status(401).json({
-      //   status: 'error',
-      //   message: 'email or password is wrong'
-      // })
     }
-    req.user = user
-    // req.login(user, err => {
-    //   if (err) {
-    //     next(err)
-    //   }
-    // })
 
+    req.login(user, function (err) {
+      if (err) {
+        next(err)
+      }
+    })
     return next()
   })(req, res, next)
+}
+
+const fieldExamine = (req, res, next) => {
+  const { email, password } = req.body
+  if (!email.trim() || !password.trim()) throw new InputErrorException('the fields [email] and [password] are required')
+  req.body.email = email.trim()
+  req.body.password = password.trim()
+  return next()
 }
 
 const authenticated = (req, res, next) => {
@@ -36,5 +39,6 @@ const authenticated = (req, res, next) => {
 
 module.exports = {
   authenticated,
-  localAuthenticate
+  localAuthenticate,
+  fieldExamine
 }

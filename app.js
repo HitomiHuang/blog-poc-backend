@@ -36,6 +36,10 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 app.use('/api', routes)
+app.use((req, res, next) => {
+  app.locals.user = req.user
+  next()
+})
 
 app.listen(port, () => {
   console.log(`App is running on http://localhost:${port}`)

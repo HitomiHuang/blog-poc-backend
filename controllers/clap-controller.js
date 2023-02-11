@@ -1,11 +1,12 @@
 const helper = require('../util/auth-helpers')
 const { Story, Clap } = require('../models')
-const { NotFoundException } = require('../util/exceptions')
+const { NotFoundException, InputErrorException } = require('../util/exceptions')
 
 const clapController = {
   addClap: async (req, res, next) => {
     try {
-      const { storyId } = req.body
+      const storyId = req.body.storyId?.trim()
+      if (!storyId) throw new InputErrorException('the field [storyId] is required')
       const story = await Story.findByPk(storyId)
       if (!story) throw new NotFoundException('Story not exist')
 
@@ -20,10 +21,13 @@ const clapController = {
   },
   removeClap: async (req, res, next) => {
     try {
+      const storyId = req.body.storyId?.trim()
+      if (!storyId) throw new InputErrorException('the field [storyId] is required')
+
       const clap = await Clap.findOne({
         where: {
           userId: helper.getUser(req).id,
-          storyId: req.body.storyId
+          storyId
         }
       })
 

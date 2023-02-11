@@ -1,6 +1,6 @@
 const helper = require('../util/auth-helpers')
 const { User, Story, Sequelize } = require('../models')
-const { NotFoundException, AuthErrorException } = require('../util/exceptions')
+const { NotFoundException, AuthErrorException, InputErrorException } = require('../util/exceptions')
 const generator = require('../util/id-generator')
 const awsHandler = require('../util/aws-helpers')
 const { QueryTypes } = require('sequelize')
@@ -9,7 +9,8 @@ const db = require('../models/index')
 const storyController = {
   getStory: async (req, res, next) => {
     try {
-      const { storyId } = req.body
+      const storyId = req.body.storyId?.trim()
+      if (!storyId) throw new InputErrorException('the field [storyId] is required')
       const story = await Story.findByPk(storyId, {
         attributes: {
           include: [[Sequelize.col('User.name'), 'name'], [Sequelize.col('User.avatar'), 'avatar']],
@@ -62,8 +63,9 @@ const storyController = {
   uploadImg: async (req, res, next) => {
     try {
       const user = helper.getUser(req).id
-      const story = req.params.storyId
-      const filePath = await awsHandler.addImg(user, story, req.file)
+      const storyId = req.body.storyId?.trim()
+      if (!storyId) throw new InputErrorException('the field [storyId] is required')
+      const filePath = await awsHandler.addImg(user, storyId, req.file)
       return res.status(200).json({
         status: 'success',
         data: filePath
@@ -75,8 +77,12 @@ const storyController = {
   addStory: async (req, res, next) => {
     try {
       const userId = helper.getUser(req).id
-      let { title, content, status } = req.body
-      if (title === null) {
+      const status = req.body.status?.trim()
+      const content = req.body.content?.trim()
+      let title = req.body.title?.trim()
+      if (!content || !status) throw new InputErrorException('the fields [content] and [status] are required')
+
+      if (!title) {
         title = content.substring(0, 100)
       }
 
@@ -104,7 +110,11 @@ const storyController = {
   },
   putStory: async (req, res, next) => {
     try {
-      const { storyId, title, content, status } = req.body
+      const storyId = req.body.storyId?.trim()
+      const status = req.body.status?.trim()
+      const content = req.body.content?.trim()
+      const title = req.body.title?.trim()
+
       const userId = helper.getUser(req).id
       const story = await Story.findByPk(storyId)
       if (!story) throw new NotFoundException('story not exist')
@@ -127,6 +137,7 @@ const storyController = {
   deleteStory: async (req, res, next) => {
     try {
       const { storyId } = req.body
+      if (!storyId) throw new InputErrorException('the fields [storyId] is required')
       const userId = helper.getUser(req).id
       const story = await Story.findByPk(storyId)
       if (!story) throw new NotFoundException('story not exist')
@@ -153,7 +164,9 @@ const storyController = {
   getClaps: async (req, res, next) => {
     try {
       const { storyId } = req.body
+      if (!storyId) throw new InputErrorException('the field [storyId] is required')
       const userId = helper.getUser(req)?.id || null
+
       const sql = `
         select users.name, users.avatar, users.bio, 
         (select if(followships.following_id = blog_poc.users.id and followships.follower_id='${userId}}', 'true', 'false') from followships) as isFollowed
@@ -161,6 +174,7 @@ const storyController = {
         left join blog_poc.users
         on claps.user_id = users.id
         where claps.story_id = '${storyId}'`
+
       const clappedUsers = await db.sequelize.query(sql, { type: QueryTypes.SELECT })
 
       return res.status(200).json({
@@ -173,7 +187,9 @@ const storyController = {
   },
   getResponses: async (req, res, next) => {
     try {
-      const { storyId } = req.bodys
+      const { storyId } = req.body
+      if (!storyId) throw new InputErrorException('the field [storyId] is required')
+
       const sql = `
         select stories.id, stories.content, stories.updated_at, users.name, users.avatar,
         (select count(*) from blog_poc.stories res where res.response_to = stories.id) as responseCount,
@@ -184,9 +200,7 @@ const storyController = {
         where stories.response_to = '${storyId}'
         order by stories.updated_at DESC`
 
-      const responses = await db.sequelize.query(sql, {
-        type: QueryTypes.SELECT
-      })
+      const responses = await db.sequelize.query(sql, { type: QueryTypes.SELECT })
       if (!responses) throw new NotFoundException('response did not exist')
 
       return res.status(200).json({

@@ -1,12 +1,15 @@
 const { Story } = require('../models')
 const helper = require('../util/auth-helpers')
 const generator = require('../util/id-generator')
-const { NotFoundException } = require('../util/exceptions')
+const { NotFoundException, InputErrorException } = require('../util/exceptions')
 
 const responseController = {
   addResponse: async (req, res, next) => {
     try {
-      const { storyId, title, content } = req.body
+      const storyId = req.body.storyId?.trim()
+      const title = req.body.title?.trim()
+      const content = req.body.content?.trim()
+      if (!storyId || !content) throw new InputErrorException('the fields [storyId] and [content] are required')
       const userId = helper.getUser(req).id
 
       const story = await Story.findByPk(storyId)
@@ -36,7 +39,9 @@ const responseController = {
   },
   putResponse: async (req, res, next) => {
     try {
-      const { storyId, content } = req.body
+      const storyId = req.body.storyId?.trim()
+      const content = req.body.content?.trim()
+      if (!storyId || !content) throw new InputErrorException('the fields [storyId] and [content] are required')
       const userId = helper.getUser(req).id
 
       const response = await Story.findOne({
@@ -62,7 +67,8 @@ const responseController = {
   },
   removeResponse: async (req, res, next) => {
     try {
-      const { storyId } = req.body
+      const storyId = req.body.storyId?.trim()
+      if (!storyId) throw new InputErrorException('the field [storyId] is required')
       const userId = helper.getUser(req).id
 
       const response = await Story.findOne({
