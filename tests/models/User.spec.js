@@ -84,38 +84,22 @@ describe('# User Model', () => {
       email: 'user123@example'
     }
     it('create', async () => {
-      try {
         const user = await db.User.create(dummyUser)
         data = user
-      } catch (err) {
-        console.log(err)
-      }
     })
     it('read', async () => {
-      try {
         const user = await db.User.findByPk(data.id)
         expect(data.id).to.be.equal(user.id)
-      } catch (err) {
-        console.log(err)
-      }
     })
     it('update', async () => {
-      try {
         await db.User.update({}, { where: { id: data.id } })
         const user = await db.User.findByPk(data.id)
-        expect(data.updatedAt).not.to.be.equal(user.updatedAt)
-      } catch (err) {
-        console.log(err)
-      }
+        expect(data.updatedAt).not.to.be.equal(user.updatedAt)     
     })
-    it('delete', async () => {
-      try {
+    it('delete', async () => {  
         await db.User.destroy({ where: { id: data.id } })
         const user = await db.User.findByPk(data.id)
-        expect(user).to.be.equal(null)
-      } catch (err) {
-        console.log(err)
-      }
+        expect(user).to.be.equal(null)     
     })
   })
 })
