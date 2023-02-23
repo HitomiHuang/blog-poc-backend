@@ -38,27 +38,26 @@ describe('# Clap Model', () => {
   context('action', () => {
     let data = null
     const dummyClap = {
-      userId: 1,
+      userId: 2,
       storyId: 'this-is-a-test-370de0a876aa'
     }
     it('create', async () => {
       const clap = await db.Clap.create(dummyClap)
-        data = clap
-        console.log(clap)
+      data = clap
     })
     it('read', async () => {
-        const clap = await db.Clap.findByPk(data.id)
-        expect(data.id).to.be.equal(clap.id)   
+      const clap = await db.Clap.findByPk(data.id)
+      expect(data.id).to.be.equal(clap.id)
     })
     it('update', async () => {
-        await db.Clap.update({}, { where: { id: data.id } })
-        const clap = await db.Clap.findByPk(data.id)
-        expect(data.updatedAt).not.to.be.equal(clap.updatedAt)
+      await db.Clap.update({}, { where: { id: data.id } })
+      const clap = await db.Clap.findByPk(data.id)
+      expect(data.updatedAt).not.to.be.equal(clap.updatedAt)
     })
     it('delete', async () => {
-        await db.Clap.destroy({ where: { id: data.id } })
-        const clap = await db.Clap.findByPk(data.id)
-        expect(clap).to.be.equal(null)    
+      await db.Clap.destroy({ where: { id: data.id } })
+      const clap = await db.Clap.findByPk(data.id)
+      expect(clap).to.be.equal(null)
     })
   })
 })

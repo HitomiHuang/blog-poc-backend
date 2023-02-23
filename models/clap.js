@@ -13,6 +13,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Clap.init({
+    id: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER
+    },
     userId: DataTypes.INTEGER,
     storyId: DataTypes.STRING
   }, {

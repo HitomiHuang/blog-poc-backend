@@ -13,6 +13,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Followship.init({
+    id: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER
+    },
     followerId: DataTypes.INTEGER,
     followingId: DataTypes.INTEGER
   }, {
