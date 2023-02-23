@@ -86,7 +86,6 @@ describe('# User Model', () => {
     it('create', async () => {
         const user = await db.User.create(dummyUser)
         data = user
-        console.log(user)
     })
     it('read', async () => {
         const user = await db.User.findByPk(data.id)

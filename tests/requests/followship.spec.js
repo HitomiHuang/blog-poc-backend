@@ -19,15 +19,15 @@ describe('# followship requests', () => {
         await db.User.destroy({ where: {}, truncate: true, force: true })
         //恢復FK的約束
         await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
-        
+
         //模擬登入資料
-        const dummyUser = {
-          userName: '@user123',
-          name: 'user123',
+        const loginUser = {
+          userName: '@user1',
+          name: 'user1',
           password: '12345678',
-          email: 'user123@example'
+          email: 'user1@example.com'
         }
-        const rootUser = await db.User.create(dummyUser)
+        const rootUser = await db.User.create(loginUser)
       })
     })
   })
