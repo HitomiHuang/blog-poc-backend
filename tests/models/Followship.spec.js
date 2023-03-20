@@ -45,7 +45,6 @@ describe('# Followship Model', () => {
     it('create', async () => {
         const followship = await db.Followship.create(dummyFollowship)
         data = followship
-        console.log(data.id)
     })
     it('read', async () => {
         const followship = await db.Followship.findByPk(data.id)

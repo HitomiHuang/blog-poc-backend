@@ -3,6 +3,7 @@ const { User, Followship, Story, Sequelize } = require('../models')
 const { NotFoundException, InputErrorException } = require('../util/exceptions')
 const awsHandler = require('../util/aws-helpers')
 const { Op } = require('sequelize')
+const jwt = require('jsonwebtoken')
 
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
@@ -11,10 +12,14 @@ if (process.env.NODE_ENV !== 'production') {
 const userController = {
   signIn: (req, res, next) => {
     try {
+      const userData = req.user.toJSON()
+      delete userData.password
+      const token = jwt.sign(userData, process.env.JWT_SECRET, { expiresIn: '7d' })
       return res.status(200)
         .json({
           status: 'success',
           data: {
+            token,
             user: helper.getUser(req).userName
           }
         })

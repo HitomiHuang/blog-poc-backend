@@ -1,7 +1,12 @@
 const passport = require('passport')
 const LocalStrategy = require('passport-local')
+const passportJWT = require('passport-jwt')
 const { NotFoundException, EmailOrPasswordWrongException } = require('../util/exceptions')
 const { User } = require('../models')
+const JWTSECRET = process.env.JWT_SECRET || 'blog-poc-backend'
+
+const JWTStrategy = passportJWT.Strategy
+const ExtractJWT = passportJWT.ExtractJwt
 
 passport.use(new LocalStrategy(
   {
@@ -20,18 +25,34 @@ passport.use(new LocalStrategy(
   }
 ))
 
-passport.serializeUser((user, done) => {
-  done(null, user.id)
-})
+const jwtOptions = {
+  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+  secretOrKey: JWTSECRET
+}
 
-passport.deserializeUser(async (id, done) => {
-  const user = await User.findByPk(id, {
+passport.use(new JWTStrategy(jwtOptions, (jwtPayload, cb) => {
+  User.findByPk(jwtPayload.id, {
     include: [
-      { model: User, as: 'Followings' },
-      { model: User, as: 'Followers' }]
+      { model: User, as: 'Followers' },
+      { model: User, as: 'Followings' }
+    ]
   })
+    .then(user => cb(null, user))
+    .catch(err => cb(err))
+}))
 
-  return done(null, user.toJSON())
-})
+// passport.serializeUser((user, done) => {
+//   done(null, user.id)
+// })
+
+// passport.deserializeUser(async (id, done) => {
+//   const user = await User.findByPk(id, {
+//     include: [
+//       { model: User, as: 'Followings' },
+//       { model: User, as: 'Followers' }]
+//   })
+
+//   return done(null, user.toJSON())
+// })
 
 module.exports = passport

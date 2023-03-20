@@ -7,12 +7,13 @@ const should = chai.should()
 const expect = chai.expect
 const db = require('../../models')
 const passport = require('../../config/passport')
+const server = request.agent('http://localhost:3000')
 
 describe('# followship requests', () => {
   context('# POST', () => {
 
     describe('/api/following', () => {
-      before(async() => {
+      before(async () => {
         //取消FK的約束
         await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
         //清除所有資料
@@ -23,32 +24,36 @@ describe('# followship requests', () => {
 
         //模擬登入資料
         const loginUser = {
-          userName: '@user1',
-          name: 'user1',
+          userName: '@root',
+          name: 'root',
           password: '12345678',
-          email: 'user1@example.com'
+          email: 'root@example.com'
         }
-        const rootUser = await db.User.create(loginUser)
-        this.authenticate = sinon.stub(passport, "authenticate")
-          .callsFake((strategy, options, callback) => {
-            callback(null, { ...rootUser }, null);
-            return (req, res, next) => { };
-          });
-        this.getUser = sinon.stub(
-          helpers, 'getUser'
-        ).returns({ id: 1, Followings: [] });
-        // 在測試資料庫中，新增 mock 資料
-        await db.User.create({ account: 'User1', name: 'User1', email: 'User1', password: 'User1' })
-        await db.User.create({ account: 'User2', name: 'User2', email: 'User2', password: 'User2' })
-      })
+        const rootUser = await db.User.create(loginUser);
+        
+        // this.authenticate = sinon.stub(passport, "authenticate").callsFake((strategy, options, callback) => {
+        //     callback(null, { ...rootUser }, null);
+        //     return (req, res, next) => {};
+        //   });
+        // this.getUser = sinon.stub(
+        //   helpers, "getUser"
+        // ).returns({ id: 1, Followings: [] });
 
-      // 新增 POST /api/following
+        // 在測試資料庫中，新增 mock 資料
+        await db.User.create({ userName: '@user1', name: 'user1', email: 'user1@example.com', password: '12345678' })
+        await db.User.create({ userName: '@user2', name: 'user2', email: 'user2@example.com', password: '12345678' })
+
+        // const test = await db.User.findAll()
+        // console.log(test)
+      })
+      it('login', loginUser());
+      //新增 POST /api/following
       it(' - successfully', (done) => {
         request(app)
           .post('/api/following')
-          .send('id=2')
+          .send('followingId=2')
           .set('Accept', 'application/json')
-          .expect(200)
+          // .expect(200)
           .end(function (err, res) {
             if (err) return done(err);
             // 檢查 Followship 資料裡，是否有 followerId=1, followingId = 2 的資料
@@ -62,8 +67,8 @@ describe('# followship requests', () => {
 
       after(async () => {
         // 清除登入及測試資料庫資料
-        this.authenticate.restore();
-        this.getUser.restore();
+        // this.authenticate.restore();
+        // this.getUser.restore();
         await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true });
         await db.User.destroy({ where: {}, truncate: true, force: true })
         await db.Followship.destroy({ where: {}, truncate: true, force: true })
@@ -72,3 +77,18 @@ describe('# followship requests', () => {
     })
   })
 })
+
+function loginUser() {
+  return function (done) {
+    server
+      .post('/api/signIn')
+      .send({ email: 'root@example.com', password: '12345678' })
+      .expect(200)
+      .end(onResponse);
+
+    function onResponse(err, res) {
+      if (err) return done(err);
+      return done();
+    }
+  };
+};

@@ -26,7 +26,7 @@ function UploadFailedException (msg) {
 UploadFailedException.prototype = new Error()
 UploadFailedException.prototype.constructor = UploadFailedException
 
-function EmailOrPasswordWrongException(msg) {
+function EmailOrPasswordWrongException (msg) {
   this.name = 'EmailOrPasswordWrongException'
   this.message = msg
 }
