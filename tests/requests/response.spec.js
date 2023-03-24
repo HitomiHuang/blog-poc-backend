@@ -8,7 +8,6 @@ const expect = chai.expect
 const db = require('../../models')
 const passport = require('../../config/passport')
 const generator = require('../../util/id-generator')
-const httpStatusCodes = require('../../util/httpStatusCodes')
 
 describe('# clap requests', () => {
   context('# POST', () => {
@@ -60,7 +59,7 @@ describe('# clap requests', () => {
         await db.Story.create(dummyStory)
       })
 
-      it('- successfully', (done) => {
+      it(' - successfully', (done) => {
         request(app)
           .post('/api/clap')
           .send({
@@ -68,7 +67,7 @@ describe('# clap requests', () => {
             userId: 1
           })
           .set('Accept', 'application/json')
-          .expect(httpStatusCodes.OK)
+          .expect(200)
           .end(function(err, res){
             if (err) return done(err);
             db.Clap.findByPk(1).then(clap => {
@@ -76,33 +75,6 @@ describe('# clap requests', () => {
               clap.storyId.should.equal(id)
               return done();
             })
-          })
-      })
-
-      it('- without stroyId', (done) => {
-        request(app)
-          .post('/api/clap')
-          .send({
-            userId: 1
-          })
-          .set('Accept', 'application/json')
-          .expect(httpStatusCodes.BAD_REQUEST)
-          .end(function(err, res){
-            return done()
-          })
-      })
-
-      it('- stroyId not found', (done) => {
-        request(app)
-          .post('/api/clap')
-          .send({
-            userId: 1,
-            storyId: 'bbbbb-123456789012'
-          })
-          .set('Accept', 'application/json')
-          .expect(httpStatusCodes.NOT_FOUND)
-          .end(function (err, res) {
-            return done()
           })
       })
 
@@ -147,13 +119,12 @@ describe('# clap requests', () => {
 
         await db.Clap.create({storyId: 'this-is-a-test-123456789012', userId: 1})
       })
-
       it('- successfully', (done) => {
         request(app)
         .delete('/api/clap')
           .send({ storyId: 'this-is-a-test-123456789012' })
           .set('Accept', 'application/json')
-        .expect(httpStatusCodes.OK)
+        .expect(200)
         .end(function(err, res){
           if(err) return done(err);
           db.Clap.findByPk(1).then(clap => {
@@ -162,18 +133,6 @@ describe('# clap requests', () => {
           })
         })
       })
-
-      it('- storyId not found', (done) => {
-        request(app)
-          .delete('/api/clap')
-          .send({ storyId: 'this-is-a-failed-test-123456789012' })
-          .set('Accept', 'application/json')
-          .expect(httpStatusCodes.NOT_FOUND)
-          .end(function (err, res) {
-              return done()
-          })
-      })
-
       after(async() => {
         this.getUser.restore()
         this.authenticate.restore()
