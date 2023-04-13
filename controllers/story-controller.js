@@ -77,10 +77,10 @@ const storyController = {
   addStory: async (req, res, next) => {
     try {
       const userId = helper.getUser(req).id
-      const status = req.body.status?.trim()
+      const status = req.body.status?.trim() || 'draft'
       const content = req.body.content?.trim()
       let title = req.body.title?.trim()
-      if (!content || !status) throw new InputErrorException('the fields [content] and [status] are required')
+      if (!content) throw new InputErrorException('the fields [content] is required')
 
       if (!title) {
         title = content.substring(0, 100)
@@ -111,6 +111,7 @@ const storyController = {
   putStory: async (req, res, next) => {
     try {
       const storyId = req.body.storyId?.trim()
+      if (!storyId) throw new InputErrorException('the fields [storyId] is required')
       const status = req.body.status?.trim()
       const content = req.body.content?.trim()
       const title = req.body.title?.trim()
@@ -136,7 +137,7 @@ const storyController = {
   },
   deleteStory: async (req, res, next) => {
     try {
-      const { storyId } = req.body
+      const storyId = req.body.storyId?.trim()
       if (!storyId) throw new InputErrorException('the fields [storyId] is required')
       const userId = helper.getUser(req).id
       const story = await Story.findByPk(storyId)
@@ -147,7 +148,7 @@ const storyController = {
         where: { responseTo: storyId }
       })
 
-      if (responses) {
+      if (responses.length) {
         await responses.destroy()
       }
 
@@ -163,9 +164,12 @@ const storyController = {
   },
   getClaps: async (req, res, next) => {
     try {
-      const { storyId } = req.body
+      const storyId = req.body.storyId.trim()
       if (!storyId) throw new InputErrorException('the field [storyId] is required')
       const userId = helper.getUser(req)?.id || null
+
+      const story = await Story.findByPk(storyId)
+      if (!story) throw new NotFoundException('story not exist')
 
       const sql = `
         select users.name, users.avatar, users.bio, 
@@ -187,8 +191,11 @@ const storyController = {
   },
   getResponses: async (req, res, next) => {
     try {
-      const { storyId } = req.body
+      const storyId = req.body.storyId?.trim()
       if (!storyId) throw new InputErrorException('the field [storyId] is required')
+
+      const story = await Story.findByPk(storyId)
+      if (!story) throw new NotFoundException('story not exist')
 
       const sql = `
         select stories.id, stories.content, stories.updated_at, users.name, users.avatar,
@@ -201,7 +208,7 @@ const storyController = {
         order by stories.updated_at DESC`
 
       const responses = await db.sequelize.query(sql, { type: QueryTypes.SELECT })
-      if (!responses) throw new NotFoundException('response did not exist')
+      // if (!responses) throw new NotFoundException('response did not exist')
 
       return res.status(200).json({
         status: 'success',

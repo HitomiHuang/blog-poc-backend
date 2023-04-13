@@ -7,7 +7,7 @@ const should = chai.should()
 const expect = chai.expect
 const db = require('../../models')
 const passport = require('../../config/passport')
-// const server = request.agent('http://localhost:3000')
+const httpStatusCodes = require('../../util/httpStatusCodes')
 
 describe('# followship requests', () => {
   context('# POST', () => {
@@ -44,13 +44,40 @@ describe('# followship requests', () => {
         await db.User.create({ userName: '@user2', name: 'user2', email: 'user2@example.com', password: '12345678' })
 
       })
+
+      //沒有正確輸入followingId
+      it(' - followingId is blank', (done) => {
+        request(app)
+          .post('/api/followship')
+          .send('followingId= ')
+          .set('Accept', 'application/json')
+          .expect(httpStatusCodes.BAD_REQUEST)
+          .end(function (err, res) {
+            if (err) return done(err);
+            return done();
+          })
+      })
+
+      //User資料庫內沒有該筆id
+      it(' - followingUser not found', (done) => {
+        request(app)
+          .post('/api/followship')
+          .send('followingId=100')
+          .set('Accept', 'application/json')
+          .expect(httpStatusCodes.NOT_FOUND)
+          .end(function (err, res) {
+            if (err) return done(err);
+            return done();
+          })
+      })
+
       //新增 POST /api/following
       it(' - successfully', (done) => {
         request(app)
           .post('/api/followship')
           .send('followingId=2')
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(httpStatusCodes.OK)
           .end(function (err, res) {
             if (err) return done(err);
             // 檢查 Followship 資料裡，是否有 followerId=1, followingId = 2 的資料
@@ -109,16 +136,42 @@ describe('# followship requests', () => {
         await db.Followship.create({ followerId: 1, followingId: 2 })
 
       })
+      
+      //沒有正確輸入followingId
+      it(' - followingId is blank', (done) => {
+        request(app)
+          .delete('/api/followship')
+          .send('followingId= ')
+          .set('Accept', 'application/json')
+          .expect(httpStatusCodes.BAD_REQUEST)
+          .end(function (err, res) {
+            if (err) return done(err);
+            return done();
+          })
+      });
+
+      //資料庫內無要刪除的followship
+      it(' - followship not found', (done) => {
+        request(app)
+          .delete('/api/followship')
+          .send('followingId= 10')
+          .set('Accept', 'application/json')
+          .expect(httpStatusCodes.NOT_FOUND)
+          .end(function (err, res) {
+            if (err) return done(err);
+            return done();
+          })
+      });
+
       //刪除 DELETE /api/following
       it(' - successfully', (done) => {
         request(app)
           .delete('/api/followship')
           .send('followingId=2')
           .set('Accept', 'application/json')
-          .expect(200)
+          .expect(httpStatusCodes.OK)
           .end(function (err, res) {
             if (err) return done(err);
-            // 檢查 Followship 資料裡，是否有 followerId=1, followingId = 2 的資料
             db.Followship.findByPk(1).then(followship => {
               expect(followship).to.be.null
               return done();

@@ -13,7 +13,7 @@ const responseController = {
       const userId = helper.getUser(req).id
 
       const story = await Story.findByPk(storyId)
-      if (!Story) throw new NotFoundException('Story did not exist')
+      if (!story) throw new NotFoundException('Story did not exist')
 
       const response = await generator(content)
       const id = response[0]
@@ -41,7 +41,7 @@ const responseController = {
     try {
       const storyId = req.body.storyId?.trim()
       const content = req.body.content?.trim()
-      if (!storyId || !content) throw new InputErrorException('the fields [storyId] and [content] are required')
+      if (!storyId) throw new InputErrorException('the fields [storyId] are required')
       const userId = helper.getUser(req).id
 
       const response = await Story.findOne({
@@ -53,8 +53,8 @@ const responseController = {
       if (!response) throw new NotFoundException('response did not exist')
 
       await response.update({
-        title: content.substring(0, 100).split('\n')[0],
-        content
+        title: content?.substring(0, 100).split('\n')[0] || response.title,
+        content: content || response.content
       })
 
       return res.status(200).json({
