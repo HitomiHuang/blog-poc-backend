@@ -1,6 +1,6 @@
 const helper = require('../util/auth-helpers')
 const { User, Followship, Story, Sequelize } = require('../models')
-const { NotFoundException, InputErrorException } = require('../util/exceptions')
+const { NotFoundException, InputErrorException, AuthErrorException } = require('../util/exceptions')
 const awsHandler = require('../util/aws-helpers')
 const { Op } = require('sequelize')
 const jwt = require('jsonwebtoken')
@@ -61,8 +61,15 @@ const userController = {
   putUser: async (req, res, next) => {
     try {
       const { name, bio, password, email } = req.body
-      const user = await User.findByPk(helper.getUser(req).id)
-      if (!user) throw new NotFoundException('user did not exist')
+      const userName = req.body.userName?.trim()
+      if (!userName) throw new InputErrorException('the field [userName] is required')
+
+      const user = await User.findOne({ where: { userName } })
+      if (!user) throw new NotFoundException('userName did not exist')
+
+      const authUser = await User.findByPk(helper.getUser(req).id)
+      if (authUser.userName !== userName) throw new AuthErrorException('auth error')
+
       const avatar = req.file ? await awsHandler.addAvatar(user.userName, req.file) : null
 
       await user.update({

@@ -16,6 +16,13 @@ const loginUser = {
   password: '12345678'
 }
 
+const normalUser = {
+  userName: '@user2',
+  name: 'user2',
+  password: '12345678',
+  email: 'user2@example.com'
+}
+
 describe('# user requests', () => {
   context('# POST', () => {
     describe('/api/signIn', () => {
@@ -341,6 +348,84 @@ describe('# user requests', () => {
         await db.User.destroy({ where: {}, truncate: true, force: true })
         await db.Story.destroy({ where: {}, truncate: true, force: true })
         await db.Followship.destroy({ where: {}, truncate: true, force: true })
+        await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
+      })
+    })
+  })
+
+  context('# PUT', () => {
+    describe('/api/user', () => {
+      before(async () => {
+        await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
+        await db.User.destroy({where:{}, truncate: true, force: true})
+        await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
+
+        const rootUser = await db.User.create(loginUser)
+        this.authenticate = sinon.stub(passport, "authenticate").callsFake((strategy, options, callback) => {
+          callback(null, { ...rootUser }, null);
+          return (req, res, next) => { };
+        });
+        this.getUser = sinon.stub(
+          helpers, "getUser"
+        ).returns({ id: 1, Followings: [] });
+
+        await db.User.create(normalUser)
+      })
+
+      it('- userName is blank', (done) => {
+        request(app)
+          .put('/api/user')
+          .send({ userName: ' ' })
+          .set('Accept', 'application/json')
+          .expect(httpStatusCodes.BAD_REQUEST)
+          .end(function (err, res) {
+            if (err) return done(err);
+            return done()
+          })
+      })
+
+      it('- userName not found', (done) => {
+        request(app)
+          .put('/api/user')
+          .send({ userName: '@user5' })
+          .set('Accept', 'application/json')
+          .expect(httpStatusCodes.NOT_FOUND)
+          .end(function (err, res) {
+            if (err) return done(err);
+            return done()
+          })
+      })
+
+      it('- user unauthorize', (done) => {
+        request(app)
+          .put('/api/user')
+          .send({ userName: '@user2' })
+          .set('Accept', 'application/json')
+          .expect(httpStatusCodes.AUTH_ERROR)
+          .end(function (err, res) {
+            if (err) return done(err);
+            return done()
+          })
+      })
+
+      it('- successfully', (done) => {
+        request(app)
+          .put('/api/user')
+          .send({ userName: loginUser.userName, name:'test-name' })
+          .set('Accept', 'application/json')
+          .expect(httpStatusCodes.OK)
+          .end(function (err, res) {
+            if (err) return done(err);
+            db.User.findByPk(1).then(user => {
+              user.name.should.equals('test-name')
+              return done()
+            })
+          })
+      })
+
+      after(async() => {
+        await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0', null, { raw: true })
+        await db.User.destroy({ where: {}, truncate: true, force: true })
         await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 1', null, { raw: true })
       })
     })
